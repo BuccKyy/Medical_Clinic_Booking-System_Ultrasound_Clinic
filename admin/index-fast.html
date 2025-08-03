@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Phòng Khám Siêu Âm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .appointment-card {
+            border-left: 4px solid #007bff;
+            margin-bottom: 1rem;
+        }
+        .appointment-card.urgent {
+            border-left-color: #dc3545;
+        }
+        .appointment-card.completed {
+            border-left-color: #28a745;
+        }
+        .status-badge {
+            font-size: 0.8rem;
+        }
+        .filter-section {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-user-md me-2"></i>
+                Quản Lý Lịch Siêu Âm
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <i class="fas fa-user me-2"></i>
+                    BS. Trần Trung Đức (Nam - Đeo kính)
+                </span>
+                <a class="nav-link" href="../index.html">
+                    <i class="fas fa-home me-1"></i>
+                    Về Trang Chủ
+                </a>
+                <a class="nav-link" href="#" onclick="logout()">
+                    <i class="fas fa-sign-out-alt me-2"></i>Đăng Xuất
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard -->
+    <div class="container mt-4">
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">Hôm Nay</h4>
+                                <h2 id="today-count">0</h2>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-calendar-day fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">Tuần Này</h4>
+                                <h2 id="week-count">0</h2>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-calendar-week fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">Chờ Xác Nhận</h4>
+                                <h2 id="pending-count">0</h2>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-clock fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">Tổng Cộng</h4>
+                                <h2 id="total-count">0</h2>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-calendar fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="date-filter" class="form-label fw-bold">Chọn Ngày:</label>
+                    <input type="date" id="date-filter" class="form-control">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="status-filter" class="form-label fw-bold">Trạng Thái:</label>
+                    <select id="status-filter" class="form-select">
+                        <option value="">Tất cả</option>
+                        <option value="pending">Chờ xác nhận</option>
+                        <option value="confirmed">Đã xác nhận</option>
+                        <option value="completed">Đã hoàn thành</option>
+                        <option value="cancelled">Đã hủy</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="service-filter" class="form-label fw-bold">Dịch Vụ:</label>
+                    <select id="service-filter" class="form-select">
+                        <option value="">Tất cả</option>
+                        <option value="ultrasound-general">Siêu Âm Tổng Quát</option>
+                        <option value="ultrasound-obstetrics">Siêu Âm Sản - Phụ Khoa</option>
+                        <option value="ultrasound-cardio">Siêu Âm Tim - Mạch Máu</option>
+                        <option value="ultrasound-ortho">Siêu Âm Cơ - Xương - Khớp</option>
+                        <option value="additional-services">Dịch Vụ Kèm Theo</option>
+                        <option value="regular-checkup">Khám Định Kỳ</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">Thao Tác:</label>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" onclick="refreshAppointments()">
+                            <i class="fas fa-sync-alt me-2"></i>Làm Mới
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointments List -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-list me-2"></i>
+                            Danh Sách Lịch Hẹn
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="appointments-list">
+                            <!-- Appointments will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Fast Admin Dashboard - Simplified Version
+        let appointments = [];
+        let currentAppointment = null;
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Fast admin dashboard loading...');
+            
+            // Check authentication
+            const isAuth = localStorage.getItem('adminAuthenticated');
+            if (isAuth !== 'true') {
+                window.location.href = 'login-simple.html';
+                return;
+            }
+            
+            // Load data and setup
+            loadAppointmentsFromStorage();
+            loadAppointments();
+            updateStatistics();
+            setupEventListeners();
+            
+            console.log('✅ Fast dashboard loaded!');
+        });
+
+        // Load appointments from localStorage
+        function loadAppointmentsFromStorage() {
+            const stored = localStorage.getItem('appointments');
+            if (stored) {
+                appointments = JSON.parse(stored);
+                console.log(`📋 Loaded ${appointments.length} appointments from storage`);
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            const debouncedFilter = debounce(filterAppointments, 300);
+            
+            document.getElementById('date-filter').addEventListener('change', debouncedFilter);
+            document.getElementById('status-filter').addEventListener('change', debouncedFilter);
+            document.getElementById('service-filter').addEventListener('change', debouncedFilter);
+            
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date-filter').value = today;
+        }
+
+        // Debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Load appointments
+        function loadAppointments() {
+            const appointmentsList = document.getElementById('appointments-list');
+            appointmentsList.innerHTML = '';
+            
+            if (appointments.length === 0) {
+                appointmentsList.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Không có lịch hẹn nào</h5>
+                        <p class="text-muted">Chưa có bệnh nhân nào đặt lịch hẹn.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort appointments
+            const sortedAppointments = appointments.sort((a, b) => {
+                const dateA = new Date(a.date + ' ' + a.time);
+                const dateB = new Date(b.date + ' ' + b.time);
+                return dateA - dateB;
+            });
+            
+            // Create fragment for better performance
+            const fragment = document.createDocumentFragment();
+            
+            sortedAppointments.forEach(appointment => {
+                const card = createAppointmentCard(appointment);
+                fragment.appendChild(card);
+            });
+            
+            appointmentsList.appendChild(fragment);
+        }
+
+        // Create appointment card
+        function createAppointmentCard(appointment) {
+            const card = document.createElement('div');
+            card.className = `card appointment-card ${getStatusClass(appointment.status)}`;
+            card.setAttribute('data-appointment-id', appointment.id);
+            
+            const statusText = getStatusText(appointment.status);
+            const statusClass = getStatusBadgeClass(appointment.status);
+            
+            const formattedDate = new Date(appointment.date).toLocaleDateString('vi-VN', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            card.innerHTML = `
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title mb-0">
+                                    <i class="fas fa-user me-2"></i>
+                                    ${appointment.patientName}
+                                </h6>
+                                <span class="badge ${statusClass} status-badge">${statusText}</span>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-1"><i class="fas fa-calendar me-2"></i>${formattedDate}</p>
+                                    <p class="mb-1"><i class="fas fa-clock me-2"></i>${appointment.time}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-1"><i class="fas fa-stethoscope me-2"></i>${appointment.serviceName}</p>
+                                    <p class="mb-1"><i class="fas fa-user-md me-2"></i>${appointment.doctorName}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button class="btn btn-sm btn-primary me-2" onclick="viewAppointment('${appointment.id}')">
+                                <i class="fas fa-eye me-1"></i>Xem
+                            </button>
+                            <button class="btn btn-sm btn-success me-2" onclick="confirmAppointmentById('${appointment.id}')">
+                                <i class="fas fa-check me-1"></i>Xác Nhận
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="cancelAppointmentById('${appointment.id}')">
+                                <i class="fas fa-times me-1"></i>Hủy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Status helper functions
+        function getStatusClass(status) {
+            switch(status) {
+                case 'pending': return '';
+                case 'confirmed': return 'urgent';
+                case 'completed': return 'completed';
+                case 'cancelled': return 'completed';
+                default: return '';
+            }
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'pending': return 'Chờ xác nhận';
+                case 'confirmed': return 'Đã xác nhận';
+                case 'completed': return 'Đã hoàn thành';
+                case 'cancelled': return 'Đã hủy';
+                default: return 'Không xác định';
+            }
+        }
+
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case 'pending': return 'bg-warning';
+                case 'confirmed': return 'bg-primary';
+                case 'completed': return 'bg-success';
+                case 'cancelled': return 'bg-danger';
+                default: return 'bg-secondary';
+            }
+        }
+
+        // Filter appointments
+        function filterAppointments() {
+            const dateFilter = document.getElementById('date-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+            const serviceFilter = document.getElementById('service-filter').value;
+            
+            let filtered = appointments.filter(appointment => {
+                let match = true;
+                
+                if (dateFilter && appointment.date !== dateFilter) {
+                    match = false;
+                }
+                
+                if (statusFilter && appointment.status !== statusFilter) {
+                    match = false;
+                }
+                
+                if (serviceFilter && appointment.serviceId !== serviceFilter) {
+                    match = false;
+                }
+                
+                return match;
+            });
+            
+            displayFilteredAppointments(filtered);
+        }
+
+        // Display filtered appointments
+        function displayFilteredAppointments(filteredAppointments) {
+            const appointmentsList = document.getElementById('appointments-list');
+            appointmentsList.innerHTML = '';
+            
+            if (filteredAppointments.length === 0) {
+                appointmentsList.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Không tìm thấy lịch hẹn</h5>
+                        <p class="text-muted">Không có lịch hẹn nào phù hợp với bộ lọc.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const fragment = document.createDocumentFragment();
+            filteredAppointments.forEach(appointment => {
+                const card = createAppointmentCard(appointment);
+                fragment.appendChild(card);
+            });
+            
+            appointmentsList.appendChild(fragment);
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayAppointments = appointments.filter(a => a.date === today);
+            const weekAppointments = getWeekAppointments();
+            const pendingAppointments = appointments.filter(a => a.status === 'pending');
+            
+            document.getElementById('today-count').textContent = todayAppointments.length;
+            document.getElementById('week-count').textContent = weekAppointments.length;
+            document.getElementById('pending-count').textContent = pendingAppointments.length;
+            document.getElementById('total-count').textContent = appointments.length;
+        }
+
+        // Get week appointments
+        function getWeekAppointments() {
+            const today = new Date();
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+            weekStart.setHours(0, 0, 0, 0);
+            
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekStart.getDate() + 6);
+            weekEnd.setHours(23, 59, 59, 999);
+            
+            return appointments.filter(appointment => {
+                const appointmentDate = new Date(appointment.date);
+                return appointmentDate >= weekStart && appointmentDate <= weekEnd;
+            });
+        }
+
+        // View appointment
+        function viewAppointment(appointmentId) {
+            const appointment = appointments.find(a => a.id === appointmentId);
+            if (appointment) {
+                currentAppointment = appointment;
+                alert(`Chi tiết lịch hẹn:\nBệnh nhân: ${appointment.patientName}\nNgày: ${appointment.date}\nGiờ: ${appointment.time}\nDịch vụ: ${appointment.serviceName}\nBác sĩ: ${appointment.doctorName}`);
+            }
+        }
+
+        // Confirm appointment
+        function confirmAppointmentById(appointmentId) {
+            const appointment = appointments.find(a => a.id === appointmentId);
+            if (appointment) {
+                appointment.status = 'confirmed';
+                updateAppointmentInStorage();
+                loadAppointments();
+                updateStatistics();
+                alert('Đã xác nhận lịch hẹn!');
+            }
+        }
+
+        // Cancel appointment
+        function cancelAppointmentById(appointmentId) {
+            const appointment = appointments.find(a => a.id === appointmentId);
+            if (appointment) {
+                appointment.status = 'cancelled';
+                updateAppointmentInStorage();
+                loadAppointments();
+                updateStatistics();
+                alert('Đã hủy lịch hẹn!');
+            }
+        }
+
+        // Update appointment in storage
+        function updateAppointmentInStorage() {
+            localStorage.setItem('appointments', JSON.stringify(appointments));
+        }
+
+        // Refresh appointments
+        function refreshAppointments() {
+            loadAppointmentsFromStorage();
+            loadAppointments();
+            updateStatistics();
+            alert('Đã làm mới dữ liệu!');
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('adminAuthenticated');
+            localStorage.removeItem('adminLoginTime');
+            window.location.href = 'login-simple.html';
+        }
+    </script>
+</body>
+</html> 

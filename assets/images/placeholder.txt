@@ -1,0 +1,9 @@
+Thư mục này chứa các hình ảnh cho website:
+
+- doctor-hero.jpg: Hình ảnh bác sĩ cho hero section
+- logo.png: Logo phòng khám
+- service-icons/: Thư mục chứa icon cho các dịch vụ
+- doctors/: Thư mục chứa ảnh bác sĩ
+- gallery/: Thư mục chứa ảnh phòng khám
+
+Lưu ý: Thay thế các hình ảnh placeholder bằng hình ảnh thực tế của phòng khám. 

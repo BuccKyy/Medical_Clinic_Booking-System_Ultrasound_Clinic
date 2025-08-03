@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Lịch Hẹn - Phòng Khám Từ Tâm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet">
+    <style>
+        .appointment-card {
+            border-left: 4px solid #007bff;
+            margin-bottom: 1rem;
+        }
+        .appointment-card.urgent {
+            border-left-color: #dc3545;
+        }
+        .appointment-card.completed {
+            border-left-color: #28a745;
+        }
+        .status-badge {
+            font-size: 0.8rem;
+        }
+        .filter-section {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+                            <a class="navbar-brand" href="#">
+                    <i class="fas fa-user-md me-2"></i>
+                    Quản Lý Lịch Siêu Âm
+                </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <i class="fas fa-user me-2"></i>
+                    BS. Trần Trung Đức (Nam - Đeo kính)
+                </span>
+                <button class="btn btn-outline-light btn-sm me-2" onclick="connectGoogleCalendar()">
+                    <i class="fab fa-google me-2"></i>Google Calendar
+                </button>
+                <a class="nav-link" href="../index.html">
+                    <i class="fas fa-home me-1"></i>
+                    Về Trang Chủ
+                </a>
+                <a class="nav-link" href="#" onclick="logout()">
+                    <i class="fas fa-sign-out-alt me-2"></i>Đăng Xuất
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard -->
+    <div class="container mt-4">
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">Hôm Nay</h4>
+                                <h2 id="today-count">0</h2>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-calendar-day fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">Tuần Này</h4>
+                                <h2 id="week-count">0</h2>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-calendar-week fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">Chờ Xác Nhận</h4>
+                                <h2 id="pending-count">0</h2>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-clock fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">Tổng Cộng</h4>
+                                <h2 id="total-count">0</h2>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="date-filter" class="form-label fw-bold">Chọn Ngày:</label>
+                    <input type="date" id="date-filter" class="form-control">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="status-filter" class="form-label fw-bold">Trạng Thái:</label>
+                    <select id="status-filter" class="form-select">
+                        <option value="">Tất cả</option>
+                        <option value="pending">Chờ xác nhận</option>
+                        <option value="confirmed">Đã xác nhận</option>
+                        <option value="completed">Đã hoàn thành</option>
+                        <option value="cancelled">Đã hủy</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="service-filter" class="form-label fw-bold">Dịch Vụ:</label>
+                    <select id="service-filter" class="form-select">
+                        <option value="">Tất cả</option>
+                        <option value="ultrasound-general">Siêu Âm Tổng Quát</option>
+                        <option value="ultrasound-obstetrics">Siêu Âm Sản - Phụ Khoa</option>
+                        <option value="ultrasound-cardio">Siêu Âm Tim - Mạch Máu</option>
+                        <option value="ultrasound-ortho">Siêu Âm Cơ - Xương - Khớp</option>
+                        <option value="additional-services">Dịch Vụ Kèm Theo</option>
+                        <option value="regular-checkup">Khám Định Kỳ</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">Thao Tác:</label>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" onclick="refreshAppointments()">
+                            <i class="fas fa-sync-alt me-2"></i>Làm Mới
+                        </button>
+                        <button class="btn btn-success" onclick="exportToGoogleSheet()">
+                            <i class="fas fa-file-excel me-2"></i>Xuất Google Sheet
+                        </button>
+                        <button class="btn btn-info" onclick="importFromGoogleSheet()">
+                            <i class="fas fa-download me-2"></i>Nhập Google Sheet
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointments List -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-list me-2"></i>
+                            Danh Sách Lịch Hẹn
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="appointments-list">
+                            <!-- Appointments will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointment Detail Modal -->
+    <div class="modal fade" id="appointmentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi Tiết Lịch Hẹn</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="appointment-detail">
+                    <!-- Appointment details will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-success" onclick="confirmAppointment()">
+                        <i class="fas fa-check me-2"></i>Xác Nhận
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="cancelAppointment()">
+                        <i class="fas fa-times me-2"></i>Hủy Lịch
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Load scripts with delay to prevent lag -->
+    <script>
+        // Load scripts sequentially to prevent conflicts
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+        
+        // Load scripts in order with delays
+        async function loadAdminScripts() {
+            try {
+                console.log('📦 Loading admin scripts...');
+                
+                // Load login.js first
+                await loadScript('login.js');
+                console.log('✅ login.js loaded');
+                
+                // Wait 100ms
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Load email-notification.js
+                await loadScript('email-notification.js');
+                console.log('✅ email-notification.js loaded');
+                
+                // Wait 100ms
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Load google-sheet.js
+                await loadScript('google-sheet.js');
+                console.log('✅ google-sheet.js loaded');
+                
+                // Wait 100ms
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Load admin.js last
+                await loadScript('admin.js');
+                console.log('✅ admin.js loaded');
+                
+                console.log('🎉 All admin scripts loaded successfully!');
+                
+            } catch (error) {
+                console.error('❌ Error loading scripts:', error);
+            }
+        }
+        
+        // Start loading scripts after DOM is ready
+        document.addEventListener('DOMContentLoaded', loadAdminScripts);
+    </script>
+</body>
+</html> 
