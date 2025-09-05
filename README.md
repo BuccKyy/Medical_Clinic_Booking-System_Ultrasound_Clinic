@@ -325,8 +325,8 @@ This project includes the full EasyAppointments framework for advanced features:
 ### Clinic Information
 - **Address**: Thảo Điền, District 2, Ho Chi Minh City, Vietnam
 - **Phone**: 
-  - Primary: [096 780 7836](tel:0967...836)
-  - Secondary: [091 106 4224](tel:0911...224)
+  - Primary: [096 7...836](tel:0967...836)
+  - Secondary: [091 ...224](tel:0911...224)
 - **Email**: [trantrungduc313@gmail.com](mailto:trantrungduc313@gmail.com)
 
 ### Technical Support
